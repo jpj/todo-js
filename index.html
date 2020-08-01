@@ -13,19 +13,20 @@
       font-size: 18pt;
     }
 
+    nav a {
+      font-size: 14pt;
+    }
+
     h1 {
       margin: 0;
     }
 
-    input {
-      border-bottom-width: 1px;
-      border-top-width: 1px;
-      padding-bottom: 1px;
-      padding-top: 1px;
+    input[type=submit] {
+      border-width: 3px;
     }
 
     input[type=text] {
-      width: 275px;
+      width: 300px;
     }
 
     #todo-name,
@@ -76,11 +77,11 @@
     </div>
   </form>
 
-  <div>
+  <nav>
     <a id="sync-link-container" target="_blank" title="Send this link to another device"></a>
     &middot;
     <a href="./about.html">About</a>
-  </div>
+  </nav>
 
   <ul id="todo-list">
   </ul>

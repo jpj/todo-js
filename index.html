@@ -251,15 +251,6 @@
       ));
     };
 
-    const emitPrepareItemRemovedEvent = function (todoId) {
-      emitEvent("PrepareItemRemoved", {id: todoId});
-    };
-    const emitCancelPrepareItemRemovedEvent = function (todoId) {
-      emitEvent("CancelPrepareItemRemoved", {id: todoId});
-    };
-    const emitItemRemovedEvent = function (todoId) {
-      emitEvent("ItemRemoved", {id: todoId});
-    };
     // End Event Wiring
 
     const addItem = function (itemName) {
@@ -273,20 +264,20 @@
     const timeoutIdByTodoIdMap = new Map();
 
     const removeItem = function (el, todoId) {
-      emitPrepareItemRemovedEvent(todoId);
+      emitEvent("PrepareItemRemoved", {id: todoId});
 
       timeoutIdByTodoIdMap.set(
               todoId,
               setTimeout(function () {
                 db.transaction(["item"], "readwrite").objectStore("item").delete(todoId).onsuccess = function (event) {
-                  emitItemRemovedEvent(todoId);
+                  emitEvent("ItemRemoved", {id: todoId});
                 };
               }, 10 * 1000, db, el)
       );
     };
 
     const cancelRemoveItem = function (el, todoId) {
-      emitCancelPrepareItemRemovedEvent(todoId);
+      emitEvent("CancelPrepareItemRemoved", {id: todoId});
 
       if (timeoutIdByTodoIdMap.has(todoId)) {
         clearTimeout(timeoutIdByTodoIdMap.get(todoId));

@@ -260,10 +260,12 @@
 
     const handlePrepareItemRemovedEvent = function (el) {
       el.classList.add("deleteCandidate");
+      el.querySelector("input[type=checkbox]").checked = true;
     };
 
     const handleCancelPrepareItemRemovedEvent = function (el) {
       el.classList.remove("deleteCandidate");
+      el.querySelector("input[type=checkbox]").checked = false;
     };
 
     const handleItemRemovedEvent = function (el) {

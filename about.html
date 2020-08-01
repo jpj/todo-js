@@ -20,80 +20,82 @@
     <a href="./">Back</a>
 </nav>
 
-<h3>
-    An experiment in creating a TODO list in pure Javascript,
-    no frameworks, and no backends
-</h3>
+<section>
+    <header>
+        <p><em>An experiment in creating a TODO list in pure Javascript,
+            no frameworks, and no backends</em></p>
+    </header>
 
-<p>
-    I wanted to create a TODO list for two reasons. 1) To brush up on modern
-    javascript and 2) I wanted a TODO list that wasn't an app that needed to be installed
-    or that required a login.
-</p>
-<p>
-    I went with plain Javascript to learn what
-    was available these days (~2020) and because I didn't need to worry about compatibility back
-    to 2005-era-browsers. I've had bad experience using frameworks for personal projects as these are
-    projects that tend to get neglected for long periods of time. When I come back to them the
-    native code works fine but the framework is woefully out of date and either doesn't
-    work or, at the very least, is so painful to upgrade it would be easier to start from
-    scratch.
-</p>
-<p>
-    I also decided upfront I didn't need a backend, at least not yet; this was a decision
-    that could be put off. My main use case revolved around having the list on my phone so
-    the only thing I required was local storage of some type. After a little poking around it
-    seemed like
-    <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localStorage</a>
-    was not quite powerful enough
-    and <a href="https://dev.w3.org/html5/webdatabase/">SQLite</a> was long out of fashion and
-    that the general recommendation for persistence was
-    <a href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API">IndexedDB</a>.
-    (In hindsight <code>localStorage</code> would have been fine but it was fun learning
-    <code>indexedDB</code>)
-</p>
-<p>
-    Building the initial list was easy and painless but I soon found I had a need to
-    transfer the list between devices. This started as a need to be able to jot down a few items while
-    on my laptop in a meeting and then "send them to my phone". My first
-    thought was "backend" but I dreaded the horror of edge cases that came along with it; hosting, user accounts,
-    data verification, security. I didn't need to persist to a DB per se, I only need to transfer the
-    list from one device to another. I came up with the idea of encoding the list and placing
-    that as the hash in the URL. This link could be sent to another device in whatever manner
-    worked best; <a href="https://support.mozilla.org/en-US/products/firefox/sync">Firefox Sync</a>,
-    <a href="https://www.pushbullet.com/">Pushbullet</a>, email, txt.
-    When the link is opened on a new device you'll be asked if you want to sync the list
-    to the local one. I loved the upsides that came with this, very minimal work to implement compared
-    to creating a backend, didn't have to worry about same origin policies. The app could be completely
-    distributed, hosted by someone else, somewhere else, and lists could be transferred between
-    the two apps. I just loved this idea of the user completely owning their data.
-</p>
-<p>
-    There are downsides to this approach. Deletions are not synced to other devices via the link.
-    Syncing requires intervention by the user. If you forget to send the sync URL from your laptop
-    then you won't have the list on your phone later when you're at the grocery store. The sync functionality
-    is naive and add-only. It's really just merging two lists. If you're goal was to quickly send off
-    several items to another device that works fine but then you'll need to go out of your way to delete
-    the items from the local device. None of this is a big deal but they are tradeoffs worth
-    pointing out. It was also an interesting discovery to think of syncing in this way and separate
-    the use case from the implementation. For the very (IMHO) minimal overhead of sending links
-    around I can avoid the overhead of hosting an application+database, paying for it, worry
-    about security issues, break ins, etc.
-</p>
-<p>
-    Side note on frameworks: The above applies not only to JS frameworks but to all,
-    backend and frontend in any language. Now don't get me wrong I do love frameworks when the name of the game is
-    getting something up and running as fast as possible but when the main objective is
-    extreme long-term stability I've found it best to reduce framework code as much as
-    possible or, at the very least, keeping the framework code decoupled from the
-    main business logic so that upgrades are less painful and even full framework swaps
-    are a reality. I very much like frameworks for actively maintained projects, which are mostly
-    just work-related for me these days. In that context it's easy to incrementally update
-    the framework frequently where gotchas become small and easy to deal with in a daily
-    capacity. Painful upgrades tend to be reduced when upgrading from Version N to Version N+1
-    and then removing deprecated API calls. But when I haven't touched a project for years and get
-    a great idea to add to it the last thing I want to do is spend hours updating and testing the framework.
-</p>
+    <p>
+        I wanted to create a TODO list for two reasons. 1) To brush up on modern
+        javascript and 2) I wanted a TODO list that wasn't an app that needed to be installed
+        or that required a login.
+    </p>
+    <p>
+        I went with plain Javascript to learn what
+        was available these days (~2020) and because I didn't need to worry about compatibility back
+        to 2005-era-browsers. I've had bad experience using frameworks for personal projects as these are
+        projects that tend to get neglected for long periods of time. When I come back to them the
+        native code works fine but the framework is woefully out of date and either doesn't
+        work or, at the very least, is so painful to upgrade it would be easier to start from
+        scratch.
+    </p>
+    <p>
+        I also decided upfront I didn't need a backend, at least not yet; this was a decision
+        that could be put off. My main use case revolved around having the list on my phone so
+        the only thing I required was local storage of some type. After a little poking around it
+        seemed like
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage">localStorage</a>
+        was not quite powerful enough
+        and <a href="https://dev.w3.org/html5/webdatabase/">SQLite</a> was long out of fashion and
+        that the general recommendation for persistence was
+        <a href="https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API">IndexedDB</a>.
+        (In hindsight <code>localStorage</code> would have been fine but it was fun learning
+        <code>indexedDB</code>)
+    </p>
+    <p>
+        Building the initial list was easy and painless but I soon found I had a need to
+        transfer the list between devices. This started as a need to be able to jot down a few items while
+        on my laptop in a meeting and then "send them to my phone". My first
+        thought was "backend" but I dreaded the horror of edge cases that came along with it; hosting, user accounts,
+        data verification, security. I didn't need to persist to a DB per se, I only need to transfer the
+        list from one device to another. I came up with the idea of encoding the list and placing
+        that as the hash in the URL. This link could be sent to another device in whatever manner
+        worked best; <a href="https://support.mozilla.org/en-US/products/firefox/sync">Firefox Sync</a>,
+        <a href="https://www.pushbullet.com/">Pushbullet</a>, email, txt.
+        When the link is opened on a new device you'll be asked if you want to sync the list
+        to the local one. I loved the upsides that came with this, very minimal work to implement compared
+        to creating a backend, didn't have to worry about same origin policies. The app could be completely
+        distributed, hosted by someone else, somewhere else, and lists could be transferred between
+        the two apps. I just loved this idea of the user completely owning their data.
+    </p>
+    <p>
+        There are downsides to this approach. Deletions are not synced to other devices via the link.
+        Syncing requires intervention by the user. If you forget to send the sync URL from your laptop
+        then you won't have the list on your phone later when you're at the grocery store. The sync functionality
+        is naive and add-only. It's really just merging two lists. If you're goal was to quickly send off
+        several items to another device that works fine but then you'll need to go out of your way to delete
+        the items from the local device. None of this is a big deal but they are tradeoffs worth
+        pointing out. It was also an interesting discovery to think of syncing in this way and separate
+        the use case from the implementation. For the very (IMHO) minimal overhead of sending links
+        around I can avoid the overhead of hosting an application+database, paying for it, worry
+        about security issues, break ins, etc.
+    </p>
+    <p>
+        Side note on frameworks: The above applies not only to JS frameworks but to all,
+        backend and frontend in any language. Now don't get me wrong I do love frameworks when the name of the game is
+        getting something up and running as fast as possible but when the main objective is
+        extreme long-term stability I've found it best to reduce framework code as much as
+        possible or, at the very least, keeping the framework code decoupled from the
+        main business logic so that upgrades are less painful and even full framework swaps
+        are a reality. I very much like frameworks for actively maintained projects, which are mostly
+        just work-related for me these days. In that context it's easy to incrementally update
+        the framework frequently where gotchas become small and easy to deal with in a daily
+        capacity. Painful upgrades tend to be reduced when upgrading from Version N to Version N+1
+        and then removing deprecated API calls. But when I haven't touched a project for years and get
+        a great idea to add to it the last thing I want to do is spend hours updating and testing the framework.
+    </p>
+</section>
 
 </body>
 </html>

@@ -115,19 +115,15 @@
     request.onupgradeneeded = function (event) {
       console.log("Upgrading db");
       const db = event.target.result;
-      const objectStore = db.createObjectStore("item", { keyPath: "id", autoIncrement: true });
+      db.createObjectStore("item", { keyPath: "id", autoIncrement: true });
     };
 
     request.onsuccess = function (event) {
       db = event.target.result;
 
       db.onerror = function (event) {
-        alert("Database error: " + event.target.errorCode, event);
+        alert("Database error: " + event.target.errorCode);
       };
-
-      const transaction = db.transaction(["item"], "readwrite");
-      objectStore = transaction.objectStore("item");
-      const item = "Item #" + Math.random().toString(36).substring(7);
 
       // GET ALL
       const readItems = db.transaction(["item"], "readonly").objectStore("item");

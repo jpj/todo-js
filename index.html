@@ -133,12 +133,11 @@
       const readItems = db.transaction(["item"], "readonly").objectStore("item");
       readItems.getAll().onsuccess = function (event) {
         event.target.result.forEach(function (item) {
-          handleAddEvent({
-            item: {
-              id: item.id,
-              name: item.name
+          document.dispatchEvent(new CustomEvent("ItemAdded", {
+            detail: {
+              item: item
             }
-          });
+          }));
         });
       };
 
@@ -189,7 +188,16 @@
     // Event Wiring
     const itemAddedBroadcastChannel = new BroadcastChannel('todo-broadcast');
     itemAddedBroadcastChannel.onmessage = function (event) {
-      handleAddEvent(event.data);
+      console.log("item add broadcast message received", event.data);
+      document.dispatchEvent(new CustomEvent("ItemAdded", {
+        detail: {
+          externalEvent: true,
+          item: {
+            id: event.data.item.id,
+            name: event.data.item.name
+          }
+        }
+      }));
     };
     const prepareItemRemovedBroadcastChannel = new BroadcastChannel('PrepareItemRemoved');
     prepareItemRemovedBroadcastChannel.onmessage = function (event) {
@@ -205,8 +213,35 @@
     };
 
     document.addEventListener("ItemAdded", function (event) {
-      handleAddEvent(event.detail);
+      if (!event.detail.externalEvent) {
+        itemAddedBroadcastChannel.postMessage(event.detail);
+      }
+
+      const li = document.createElement("li");
+
+      const checkBox = document.createElement("input");
+      checkBox.setAttribute("type", "checkbox")
+      li.appendChild(checkBox);
+
+      if (event.detail.item.name) {
+        li.appendChild(document.createTextNode(`${event.detail.item.name} `));
+        const span = document.createElement("span");
+        span.appendChild(document.createTextNode(`[${event.detail.item.id}]`));
+        span.classList.add("internal-identifier");
+        li.appendChild(span);
+      } else {
+        li.classList.add("divider");
+        li.appendChild(document.createElement("hr"));
+      }
+      li.todoId = event.detail.item.id;
+      li.id = "item-" + event.detail.item.id;
+
+      document.getElementById("todo-list").insertBefore(li, document.getElementById("todo-list").firstChild);
+      document.getElementById("todo-name").value = "";
+
+      generateSyncUrlAndInjectToDom();
     });
+
     document.addEventListener("PrepareItemRemoved", function (event) {
       handlePrepareItemRemovedEvent(document.getElementById("item-" + event.detail.item.id));
     });
@@ -218,8 +253,8 @@
     });
 
     const emitItemAddedEvent = function (itemEvent) {
-      itemAddedBroadcastChannel.postMessage(itemEvent);
-      document.dispatchEvent(new CustomEvent("ItemAdded", {detail: itemEvent}));
+      // itemAddedBroadcastChannel.postMessage(itemEvent);
+      // document.dispatchEvent(new CustomEvent("ItemAdded", {detail: itemEvent}));
     };
     const emitPrepareItemRemovedEvent = function (todoId) {
       prepareItemRemovedBroadcastChannel.postMessage({item: {id: todoId}});
@@ -234,32 +269,6 @@
       document.dispatchEvent(new CustomEvent("ItemRemoved", {detail: {item: {id: todoId}}}));
     };
     // End Event Wiring
-
-    const handleAddEvent = function (itemEvent) {
-      const li = document.createElement("li");
-
-      const checkBox = document.createElement("input");
-      checkBox.setAttribute("type", "checkbox")
-      li.appendChild(checkBox);
-
-      if (itemEvent.item.name) {
-        li.appendChild(document.createTextNode(`${itemEvent.item.name} `));
-        const span = document.createElement("span");
-        span.appendChild(document.createTextNode(`[${itemEvent.item.id}]`));
-        span.classList.add("internal-identifier");
-        li.appendChild(span);
-      } else {
-        li.classList.add("divider");
-        li.appendChild(document.createElement("hr"));
-      }
-      li.todoId = itemEvent.item.id;
-      li.id = "item-" + itemEvent.item.id;
-
-      document.getElementById("todo-list").insertBefore(li, document.getElementById("todo-list").firstChild);
-      document.getElementById("todo-name").value = "";
-
-      generateSyncUrlAndInjectToDom();
-    };
 
     const handlePrepareItemRemovedEvent = function (el) {
       el.classList.add("deleteCandidate");
@@ -277,12 +286,18 @@
     const addItem = function (itemName) {
       db.transaction(["item"], "readwrite").objectStore("item").add({ name: itemName }).onsuccess = function (event) {
         event.target.transaction.objectStore("item").get(event.target.result).onsuccess = function (event) {
-          emitItemAddedEvent({
-            item: {
-              id: event.target.result.id,
-              name: event.target.result.name
-            }
-          });
+          document.dispatchEvent(new CustomEvent("ItemAdded", {detail: {
+              item: {
+                id: event.target.result.id,
+                name: event.target.result.name
+              }
+            }}));
+          // emitItemAddedEvent({
+          //   item: {
+          //     id: event.target.result.id,
+          //     name: event.target.result.name
+          //   }
+          // });
         };
       };
     };

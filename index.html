@@ -238,45 +238,34 @@
       generateSyncUrlAndInjectToDom();
     });
 
-    const emitPrepareItemRemovedEvent = function (todoId) {
+    const emitEvent = (eventName, item) => {
       broadcastChannel.postMessage({
-        eventName: "PrepareItemRemoved",
-        item: {id: todoId}
+        eventName: eventName,
+        item: item
       });
-      document.dispatchEvent(new CustomEvent("PrepareItemRemoved", {detail: {item: {id: todoId}}}));
+      document.dispatchEvent(new CustomEvent(
+              eventName,
+              {
+                detail: {item: item}
+              }
+      ));
+    };
+
+    const emitPrepareItemRemovedEvent = function (todoId) {
+      emitEvent("PrepareItemRemoved", {id: todoId});
     };
     const emitCancelPrepareItemRemovedEvent = function (todoId) {
-      broadcastChannel.postMessage({
-        eventName: "CancelPrepareItemRemoved",
-        item: {id: todoId}
-      });
-      document.dispatchEvent(new CustomEvent("CancelPrepareItemRemoved", {detail: {item: {id: todoId}}}));
+      emitEvent("CancelPrepareItemRemoved", {id: todoId});
     };
     const emitItemRemovedEvent = function (todoId) {
-      broadcastChannel.postMessage({
-        eventName: "ItemRemoved",
-        item: {id: todoId}
-      });
-      document.dispatchEvent(new CustomEvent("ItemRemoved", {detail: {item: {id: todoId}}}));
+      emitEvent("ItemRemoved", {id: todoId});
     };
     // End Event Wiring
 
     const addItem = function (itemName) {
       db.transaction(["item"], "readwrite").objectStore("item").add({ name: itemName }).onsuccess = function (event) {
         event.target.transaction.objectStore("item").get(event.target.result).onsuccess = function (event) {
-          document.dispatchEvent(new CustomEvent("ItemAdded", {detail: {
-              item: {
-                id: event.target.result.id,
-                name: event.target.result.name
-              }
-            }}));
-          broadcastChannel.postMessage({
-            eventName: "ItemAdded",
-            item: {
-              id: event.target.result.id,
-              name: event.target.result.name
-            }
-          });
+          emitEvent("ItemAdded", {id: event.target.result.id, name: event.target.result.name});
         };
       };
     };

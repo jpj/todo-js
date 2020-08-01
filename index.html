@@ -52,6 +52,11 @@
       border: none;
       border-top: 3px double;
     }
+
+    input[type=checkbox] {
+      float: left;
+      margin-right: 7px;
+    }
   </style>
 </head>
 
@@ -75,13 +80,14 @@
   </ul>
   <script type="text/javascript">
 
+    // Init service worker
     // Doesn't work w/o HTTPS
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/cache.js', { scope: '/' })
         .then(function (reg) {
           console.log('Registration succeeded. Scope is ' + reg.scope);
         }).catch(function (error) {
-          console.log('Registration failed with ' + error);
+          console.log('Registration failed with ' + error, error);
         });
     }
 
@@ -154,7 +160,9 @@
 
     // DELETE
     document.getElementById("todo-list").addEventListener("click", function (event) {
-      removeItem(event.target, event.target.todoId);
+      if (event.target.type === "checkbox") {
+        removeItem(event.target.parentElement, event.target.parentElement.todoId);
+      }
     });
 
     function generateSyncUrlAndInjectToDom() {
@@ -206,9 +214,11 @@
     // End Event Wiring
 
     const handleAddEvent = function (itemEvent) {
-      console.log(`Adding '${itemEvent.item.name}'`, itemEvent);
-
       const li = document.createElement("li");
+
+      const checkBox = document.createElement("input");
+      checkBox.setAttribute("type", "checkbox")
+      li.appendChild(checkBox);
 
       if (itemEvent.item.name) {
         li.appendChild(document.createTextNode(`${itemEvent.item.name} `));
@@ -222,8 +232,10 @@
       }
       li.todoId = itemEvent.item.id;
       li.id = "item-" + itemEvent.item.id;
+
       document.getElementById("todo-list").insertBefore(li, document.getElementById("todo-list").firstChild);
       document.getElementById("todo-name").value = "";
+
       generateSyncUrlAndInjectToDom();
     };
 

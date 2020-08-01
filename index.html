@@ -223,13 +223,19 @@
     });
 
     document.addEventListener("PrepareItemRemoved", function (event) {
-      handlePrepareItemRemovedEvent(document.getElementById("item-" + event.detail.item.id));
+      const el = document.getElementById("item-" + event.detail.item.id);
+      el.classList.add("deleteCandidate");
+      el.querySelector("input[type=checkbox]").checked = true;
     });
     document.addEventListener("CancelPrepareItemRemoved", function (event) {
-      handleCancelPrepareItemRemovedEvent(document.getElementById("item-" + event.detail.item.id));
+      const el = document.getElementById("item-" + event.detail.item.id);
+      el.classList.remove("deleteCandidate");
+      el.querySelector("input[type=checkbox]").checked = false;
     });
     document.addEventListener("ItemRemoved", function (event) {
-      handleItemRemovedEvent(document.getElementById("item-" + event.detail.item.id));
+      const el = document.getElementById("item-" + event.detail.item.id);
+      el.remove();
+      generateSyncUrlAndInjectToDom();
     });
 
     const emitPrepareItemRemovedEvent = function (todoId) {
@@ -254,21 +260,6 @@
       document.dispatchEvent(new CustomEvent("ItemRemoved", {detail: {item: {id: todoId}}}));
     };
     // End Event Wiring
-
-    const handlePrepareItemRemovedEvent = function (el) {
-      el.classList.add("deleteCandidate");
-      el.querySelector("input[type=checkbox]").checked = true;
-    };
-
-    const handleCancelPrepareItemRemovedEvent = function (el) {
-      el.classList.remove("deleteCandidate");
-      el.querySelector("input[type=checkbox]").checked = false;
-    };
-
-    const handleItemRemovedEvent = function (el) {
-      el.remove();
-      generateSyncUrlAndInjectToDom();
-    };
 
     const addItem = function (itemName) {
       db.transaction(["item"], "readwrite").objectStore("item").add({ name: itemName }).onsuccess = function (event) {

@@ -182,9 +182,11 @@
     }
 
     // Event Wiring
-    const itemAddedBroadcastChannel = new BroadcastChannel('todo-broadcast');
-    itemAddedBroadcastChannel.onmessage = function (event) {
-      document.dispatchEvent(new CustomEvent("ItemAdded", {
+    const broadcastChannel = new BroadcastChannel('todo-broadcast');
+
+    // Delegate all broadcast channel events to dispatch events
+    broadcastChannel.onmessage = function (event) {
+      document.dispatchEvent(new CustomEvent(event.data.eventName, {
         detail: {
           item: {
             id: event.data.item.id,
@@ -192,18 +194,6 @@
           }
         }
       }));
-    };
-    const prepareItemRemovedBroadcastChannel = new BroadcastChannel('PrepareItemRemoved');
-    prepareItemRemovedBroadcastChannel.onmessage = function (event) {
-      handlePrepareItemRemovedEvent(document.getElementById("item-" + event.data.item.id));
-    };
-    const prepareCancelItemRemovedBroadcastChannel = new BroadcastChannel('CancelPrepareItemRemoved');
-    prepareCancelItemRemovedBroadcastChannel.onmessage = function (event) {
-      handleCancelPrepareItemRemovedEvent(document.getElementById("item-" + event.data.item.id));
-    };
-    const itemRemovedBroadcastChannel = new BroadcastChannel('ItemRemoved');
-    itemRemovedBroadcastChannel.onmessage = function (event) {
-      handleItemRemovedEvent(document.getElementById("item-" + event.data.item.id));
     };
 
     document.addEventListener("ItemAdded", function (event) {
@@ -243,15 +233,24 @@
     });
 
     const emitPrepareItemRemovedEvent = function (todoId) {
-      prepareItemRemovedBroadcastChannel.postMessage({item: {id: todoId}});
+      broadcastChannel.postMessage({
+        eventName: "PrepareItemRemoved",
+        item: {id: todoId}
+      });
       document.dispatchEvent(new CustomEvent("PrepareItemRemoved", {detail: {item: {id: todoId}}}));
     };
     const emitCancelPrepareItemRemovedEvent = function (todoId) {
-      prepareCancelItemRemovedBroadcastChannel.postMessage({item: {id: todoId}});
+      broadcastChannel.postMessage({
+        eventName: "CancelPrepareItemRemoved",
+        item: {id: todoId}
+      });
       document.dispatchEvent(new CustomEvent("CancelPrepareItemRemoved", {detail: {item: {id: todoId}}}));
     };
     const emitItemRemovedEvent = function (todoId) {
-      itemRemovedBroadcastChannel.postMessage({item: {id: todoId}});
+      broadcastChannel.postMessage({
+        eventName: "ItemRemoved",
+        item: {id: todoId}
+      });
       document.dispatchEvent(new CustomEvent("ItemRemoved", {detail: {item: {id: todoId}}}));
     };
     // End Event Wiring
@@ -280,7 +279,8 @@
                 name: event.target.result.name
               }
             }}));
-          itemAddedBroadcastChannel.postMessage({
+          broadcastChannel.postMessage({
+            eventName: "ItemAdded",
             item: {
               id: event.target.result.id,
               name: event.target.result.name

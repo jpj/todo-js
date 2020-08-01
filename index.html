@@ -161,7 +161,11 @@
     // DELETE
     document.getElementById("todo-list").addEventListener("click", function (event) {
       if (event.target.type === "checkbox") {
-        removeItem(event.target.parentElement, event.target.parentElement.todoId);
+        if (event.target.checked) {
+          removeItem(event.target.parentElement, event.target.parentElement.todoId);
+        } else {
+          cancelRemoveItem(event.target.parentElement, event.target.parentElement.todoId);
+        }
       }
     });
 
@@ -184,6 +188,10 @@
     prepareItemRemovedBroadcastChannel.onmessage = function (event) {
       handlePrepareItemRemovedEvent(document.getElementById("item-" + event.data.item.id));
     };
+    const prepareCancelItemRemovedBroadcastChannel = new BroadcastChannel('CancelPrepareItemRemoved');
+    prepareCancelItemRemovedBroadcastChannel.onmessage = function (event) {
+      handleCancelPrepareItemRemovedEvent(document.getElementById("item-" + event.data.item.id));
+    };
     const itemRemovedBroadcastChannel = new BroadcastChannel('ItemRemoved');
     itemRemovedBroadcastChannel.onmessage = function (event) {
       handleItemRemovedEvent(document.getElementById("item-" + event.data.item.id));
@@ -195,21 +203,28 @@
     document.addEventListener("PrepareItemRemoved", function (event) {
       handlePrepareItemRemovedEvent(document.getElementById("item-" + event.detail.item.id));
     });
+    document.addEventListener("CancelPrepareItemRemoved", function (event) {
+      handleCancelPrepareItemRemovedEvent(document.getElementById("item-" + event.detail.item.id));
+    });
     document.addEventListener("ItemRemoved", function (event) {
       handleItemRemovedEvent(document.getElementById("item-" + event.detail.item.id));
     });
 
     const emitItemAddedEvent = function (itemEvent) {
       itemAddedBroadcastChannel.postMessage(itemEvent);
-      document.dispatchEvent(new CustomEvent("ItemAdded", { detail: itemEvent }));
+      document.dispatchEvent(new CustomEvent("ItemAdded", {detail: itemEvent}));
     };
-  const emitPrepareItemRemovedEvent = function (todoId) {
-      prepareItemRemovedBroadcastChannel.postMessage({ item: { id: todoId } });
-      document.dispatchEvent(new CustomEvent("PrepareItemRemoved", { detail: { item: { id: todoId } } }));
+    const emitPrepareItemRemovedEvent = function (todoId) {
+      prepareItemRemovedBroadcastChannel.postMessage({item: {id: todoId}});
+      document.dispatchEvent(new CustomEvent("PrepareItemRemoved", {detail: {item: {id: todoId}}}));
+    };
+    const emitCancelPrepareItemRemovedEvent = function (todoId) {
+      prepareCancelItemRemovedBroadcastChannel.postMessage({item: {id: todoId}});
+      document.dispatchEvent(new CustomEvent("CancelPrepareItemRemoved", {detail: {item: {id: todoId}}}));
     };
     const emitItemRemovedEvent = function (todoId) {
-      itemRemovedBroadcastChannel.postMessage({ item: { id: todoId } });
-      document.dispatchEvent(new CustomEvent("ItemRemoved", { detail: { item: { id: todoId } } }));
+      itemRemovedBroadcastChannel.postMessage({item: {id: todoId}});
+      document.dispatchEvent(new CustomEvent("ItemRemoved", {detail: {item: {id: todoId}}}));
     };
     // End Event Wiring
 
@@ -243,6 +258,10 @@
       el.classList.add("deleteCandidate");
     };
 
+    const handleCancelPrepareItemRemovedEvent = function (el) {
+      el.classList.remove("deleteCandidate");
+    };
+
     const handleItemRemovedEvent = function (el) {
       el.remove();
       generateSyncUrlAndInjectToDom();
@@ -261,6 +280,8 @@
       };
     };
 
+    const timeoutIdByTodoIdMap = {};
+
     const removeItem = function (el, todoId) {
       emitPrepareItemRemovedEvent(todoId);
       setTimeout(function () {
@@ -268,6 +289,15 @@
           emitItemRemovedEvent(todoId);
         };
       }, 10 * 1000, db, el);
+    };
+
+    const cancelRemoveItem = function (el, todoId) {
+      emitCancelPrepareItemRemovedEvent(todoId);
+      // setTimeout(function () {
+      //   db.transaction(["item"], "readwrite").objectStore("item").delete(todoId).onsuccess = function (event) {
+      //     emitItemRemovedEvent(todoId);
+      //   };
+      // }, 10 * 1000, db, el);
     };
   </script>
 </body>

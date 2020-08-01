@@ -17,6 +17,13 @@
       margin: 0;
     }
 
+    input {
+      border-bottom-width: 1px;
+      border-top-width: 1px;
+      padding-bottom: 1px;
+      padding-top: 1px;
+    }
+
     #todo-name,
     #todo-list li {
       text-transform: capitalize;
@@ -24,10 +31,11 @@
 
     ul {
       margin-top: 3px;
-      padding-left: 25px;
+      padding-left: 0;
     }
 
     ul li {
+      list-style: none;
       padding: 5px;
     }
 
@@ -42,15 +50,6 @@
 
     ul li .internal-identifier {
       color: #acaaaa;
-    }
-
-    ul li.divider {
-      list-style-type: none;
-    }
-
-    ul li.divider hr {
-      border: none;
-      border-top: 3px double;
     }
 
     input[type=checkbox] {
@@ -69,8 +68,7 @@
 
   <form id="todo-form" action="javascript:void(false);">
     <div>
-      <input type="text" id="todo-name" autocomplete="off" placeholder="Milk"/>
-      <input type="submit" value="Add" />
+      <input type="text" id="todo-name" autocomplete="off" placeholder="Milk"/><input type="submit" value="+" />
     </div>
   </form>
 

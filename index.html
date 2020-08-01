@@ -280,24 +280,27 @@
       };
     };
 
-    const timeoutIdByTodoIdMap = {};
+    const timeoutIdByTodoIdMap = new Map();
 
     const removeItem = function (el, todoId) {
       emitPrepareItemRemovedEvent(todoId);
-      setTimeout(function () {
-        db.transaction(["item"], "readwrite").objectStore("item").delete(todoId).onsuccess = function (event) {
-          emitItemRemovedEvent(todoId);
-        };
-      }, 10 * 1000, db, el);
+
+      timeoutIdByTodoIdMap.set(
+              todoId,
+              setTimeout(function () {
+                db.transaction(["item"], "readwrite").objectStore("item").delete(todoId).onsuccess = function (event) {
+                  emitItemRemovedEvent(todoId);
+                };
+              }, 10 * 1000, db, el)
+      );
     };
 
     const cancelRemoveItem = function (el, todoId) {
       emitCancelPrepareItemRemovedEvent(todoId);
-      // setTimeout(function () {
-      //   db.transaction(["item"], "readwrite").objectStore("item").delete(todoId).onsuccess = function (event) {
-      //     emitItemRemovedEvent(todoId);
-      //   };
-      // }, 10 * 1000, db, el);
+
+      if (timeoutIdByTodoIdMap.has(todoId)) {
+        clearTimeout(timeoutIdByTodoIdMap.get(todoId));
+      }
     };
   </script>
 </body>

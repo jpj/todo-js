@@ -31,7 +31,7 @@
     or that required a login.
 </p>
 <p>
-    I decided to use plain Javascript to learn what
+    I went with plain Javascript to learn what
     was available these days (~2020) and because I didn't need to worry about compatibility back
     to 2005-era-browsers. I've had bad experience using frameworks for personal projects as these are
     projects that tend to get neglected for long periods of time. When I come back to them the
@@ -56,12 +56,12 @@
     Building the initial list was easy and painless but I soon found I had a need to
     transfer the list between devices. This started as a need to be able to jot down a few items while
     on my laptop in a meeting and then "send them to my phone". My first
-    thought was "backend" but I dreaded the horror of edge cases that came along with it; user accounts,
+    thought was "backend" but I dreaded the horror of edge cases that came along with it; hosting, user accounts,
     data verification, security. I didn't need to persist to a DB per se, I only need to transfer the
     list from one device to another. I came up with the idea of encoding the list and placing
     that as the hash in the URL. This link could be sent to another device in whatever manner
     worked best; <a href="https://support.mozilla.org/en-US/products/firefox/sync">Firefox Sync</a>,
-    <a href="https://www.pushbullet.com/">Pushbullet</a>, email, txt, whatever.
+    <a href="https://www.pushbullet.com/">Pushbullet</a>, email, txt.
     When the link is opened on a new device you'll be asked if you want to sync the list
     to the local one. I loved the upsides that came with this, very minimal work to implement compared
     to creating a backend, didn't have to worry about same origin policies. The app could be completely

@@ -248,10 +248,6 @@
       handleItemRemovedEvent(document.getElementById("item-" + event.detail.item.id));
     });
 
-    const emitItemAddedEvent = function (itemEvent) {
-      // itemAddedBroadcastChannel.postMessage(itemEvent);
-      // document.dispatchEvent(new CustomEvent("ItemAdded", {detail: itemEvent}));
-    };
     const emitPrepareItemRemovedEvent = function (todoId) {
       prepareItemRemovedBroadcastChannel.postMessage({item: {id: todoId}});
       document.dispatchEvent(new CustomEvent("PrepareItemRemoved", {detail: {item: {id: todoId}}}));

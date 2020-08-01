@@ -184,10 +184,8 @@
     // Event Wiring
     const itemAddedBroadcastChannel = new BroadcastChannel('todo-broadcast');
     itemAddedBroadcastChannel.onmessage = function (event) {
-      console.log("item add broadcast message received", event.data);
       document.dispatchEvent(new CustomEvent("ItemAdded", {
         detail: {
-          externalEvent: true,
           item: {
             id: event.data.item.id,
             name: event.data.item.name

@@ -209,10 +209,6 @@
     };
 
     document.addEventListener("ItemAdded", function (event) {
-      if (!event.detail.externalEvent) {
-        itemAddedBroadcastChannel.postMessage(event.detail);
-      }
-
       const li = document.createElement("li");
 
       const checkBox = document.createElement("input");
@@ -284,6 +280,12 @@
                 name: event.target.result.name
               }
             }}));
+          itemAddedBroadcastChannel.postMessage({
+            item: {
+              id: event.target.result.id,
+              name: event.target.result.name
+            }
+          });
         };
       };
     };

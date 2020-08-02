@@ -164,7 +164,7 @@
     document.getElementById("todo-list").addEventListener("click", function (event) {
       if (event.target.type === "checkbox") {
         if (event.target.checked) {
-          removeItem(event.target.parentElement, event.target.parentElement.todoId);
+          removeItem(event.target.parentElement.todoId);
         } else {
           cancelRemoveItem(event.target.parentElement, event.target.parentElement.todoId);
         }
@@ -263,16 +263,16 @@
 
     const timeoutIdByTodoIdMap = new Map();
 
-    const removeItem = function (el, todoId) {
+    const removeItem = function (todoId) {
       emitEvent("PrepareItemRemoved", {id: todoId});
 
       timeoutIdByTodoIdMap.set(
               todoId,
-              setTimeout(function () {
-                db.transaction(["item"], "readwrite").objectStore("item").delete(todoId).onsuccess = function (event) {
-                  emitEvent("ItemRemoved", {id: todoId});
+              setTimeout(function (db, todoId2) {
+                db.transaction(["item"], "readwrite").objectStore("item").delete(todoId2).onsuccess = function (event) {
+                  emitEvent("ItemRemoved", {id: todoId2});
                 };
-              }, 10 * 1000, db, el)
+              }, 10 * 1000, db, todoId)
       );
     };
 

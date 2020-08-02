@@ -175,7 +175,11 @@
                   }, 10 * 1000, db, event.target.parentElement.todoId)
           );
         } else {
-          cancelRemoveItem(event.target.parentElement, event.target.parentElement.todoId);
+          emitEvent("CancelPrepareItemRemoved", {id: event.target.parentElement.todoId});
+
+          if (timeoutIdByTodoIdMap.has(event.target.parentElement.todoId)) {
+            clearTimeout(timeoutIdByTodoIdMap.get(event.target.parentElement.todoId));
+          }
         }
       }
     });
@@ -271,14 +275,6 @@
     };
 
     const timeoutIdByTodoIdMap = new Map();
-
-    const cancelRemoveItem = function (el, todoId) {
-      emitEvent("CancelPrepareItemRemoved", {id: todoId});
-
-      if (timeoutIdByTodoIdMap.has(todoId)) {
-        clearTimeout(timeoutIdByTodoIdMap.get(todoId));
-      }
-    };
   </script>
 </body>
 

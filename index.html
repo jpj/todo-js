@@ -196,9 +196,10 @@
 
     // Event Wiring
     const broadcastChannel = new BroadcastChannel('todo-broadcast');
+    const receiveChannel = new BroadcastChannel('todo-broadcast');
 
     // Delegate all broadcast channel events to dispatch events
-    broadcastChannel.onmessage = function (event) {
+    receiveChannel.onmessage = function (event) {
       document.dispatchEvent(new CustomEvent(event.data.eventName, {
         detail: {
           item: {
@@ -256,12 +257,6 @@
         eventName: eventName,
         item: item
       });
-      document.dispatchEvent(new CustomEvent(
-              eventName,
-              {
-                detail: {item: item}
-              }
-      ));
     };
 
     // End Event Wiring

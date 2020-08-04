@@ -3,7 +3,6 @@
 
 <head>
   <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-  <meta content="utf-8" http-equiv="encoding">
   <meta name="viewport" content="width=device-width, height=device-height" />
   <title>TODO // todo</title>
   <style type="text/css">
@@ -71,7 +70,7 @@
 <body>
   <h1>// TODO</h1>
 
-  <form id="todo-form" action="javascript:void(false);">
+  <form id="todo-form" action="#">
     <div>
       <input type="text" id="todo-name" autocomplete="off" placeholder="Milk"/><input type="submit" value="+" />
     </div>
@@ -114,12 +113,14 @@
       console.log("Error opening DB", event);
     };
 
+    /** @param {MyDbEvent} event */
     request.onupgradeneeded = function (event) {
       console.log("Upgrading db");
       const db = event.target.result;
       db.createObjectStore("item", { keyPath: "id", autoIncrement: true });
     };
 
+    /** @param {MyDbEvent} event */
     request.onsuccess = function (event) {
       db = event.target.result;
 
@@ -129,6 +130,7 @@
 
       // GET ALL
       const readItems = db.transaction(["item"], "readonly").objectStore("item");
+      /** @param {MyDbEvent} event */
       readItems.getAll().onsuccess = function (event) {
         event.target.result.forEach(function (item) {
           document.dispatchEvent(new CustomEvent("ItemAdded", {
@@ -171,7 +173,7 @@
           timeoutIdByTodoIdMap.set(
                   event.target.parentElement.todoId,
                   setTimeout(function (db, todoId) {
-                    db.transaction(["item"], "readwrite").objectStore("item").delete(todoId).onsuccess = function (event) {
+                    db.transaction(["item"], "readwrite").objectStore("item").delete(todoId).onsuccess = function () {
                       emitEvent("ItemRemoved", {id: todoId});
                     };
                   }, 10 * 1000, db, event.target.parentElement.todoId)
@@ -208,8 +210,16 @@
       });
     };
 
+    /**
+     * DB Event
+     * @name MyDbEvent
+     * @property {IDBRequest} target
+     */
+
     const addItem = function (itemName) {
+      /** @param {MyDbEvent} event */
       db.transaction(["item"], "readwrite").objectStore("item").add({ name: itemName }).onsuccess = function (event) {
+        /** @param {MyDbEvent} event */
         event.target.transaction.objectStore("item").get(event.target.result).onsuccess = function (event) {
           emitEvent("ItemAdded", {id: event.target.result.id, name: event.target.result.name});
         };
@@ -258,7 +268,8 @@
       emitEvent("TodoListModified", event.detail.item);
     });
 
-    document.addEventListener("TodoListModified", function(event) {
+    document.addEventListener("TodoListModified", function() {
+      /** @param {MyDbEvent} event */
       db.transaction(["item"], "readonly").objectStore("item").getAll().onsuccess = function (event) {
         const encodedSyncString = btoa(JSON.stringify(event.target.result.map(item => { return { name: item.name } })));
         const encodedSyncStringSize = (new TextEncoder().encode(encodedSyncString)).length;

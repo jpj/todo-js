@@ -87,6 +87,8 @@
   </ul>
   <script type="text/javascript">
 
+    const timeoutIdByTodoIdMap = new Map();
+
     // Init service worker
     // Doesn't work w/o HTTPS
     if ('serviceWorker' in navigator) {
@@ -184,7 +186,6 @@
       }
     });
 
-    // Event Wiring
     const broadcastChannel = new BroadcastChannel('todo-broadcast');
     const receiveChannel = new BroadcastChannel('todo-broadcast');
 
@@ -205,6 +206,14 @@
         eventName: eventName,
         item: item
       });
+    };
+
+    const addItem = function (itemName) {
+      db.transaction(["item"], "readwrite").objectStore("item").add({ name: itemName }).onsuccess = function (event) {
+        event.target.transaction.objectStore("item").get(event.target.result).onsuccess = function (event) {
+          emitEvent("ItemAdded", {id: event.target.result.id, name: event.target.result.name});
+        };
+      };
     };
 
     document.addEventListener("ItemAdded", function (event) {
@@ -257,19 +266,7 @@
         a.innerText = `Sync to device (${encodedSyncStringSize}b) \u29C9`;
         a.href = "#" + encodedSyncString;
       };
-    })
-
-    // End Event Wiring
-
-    const addItem = function (itemName) {
-      db.transaction(["item"], "readwrite").objectStore("item").add({ name: itemName }).onsuccess = function (event) {
-        event.target.transaction.objectStore("item").get(event.target.result).onsuccess = function (event) {
-          emitEvent("ItemAdded", {id: event.target.result.id, name: event.target.result.name});
-        };
-      };
-    };
-
-    const timeoutIdByTodoIdMap = new Map();
+    });
   </script>
 </body>
 

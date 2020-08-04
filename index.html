@@ -170,9 +170,9 @@
 
           timeoutIdByTodoIdMap.set(
                   event.target.parentElement.todoId,
-                  setTimeout(function (db, todoId2) {
-                    db.transaction(["item"], "readwrite").objectStore("item").delete(todoId2).onsuccess = function (event) {
-                      emitEvent("ItemRemoved", {id: todoId2});
+                  setTimeout(function (db, todoId) {
+                    db.transaction(["item"], "readwrite").objectStore("item").delete(todoId).onsuccess = function (event) {
+                      emitEvent("ItemRemoved", {id: todoId});
                     };
                   }, 10 * 1000, db, event.target.parentElement.todoId)
           );

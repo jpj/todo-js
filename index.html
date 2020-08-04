@@ -184,16 +184,6 @@
       }
     });
 
-    function generateSyncUrlAndInjectToDom() {
-      db.transaction(["item"], "readonly").objectStore("item").getAll().onsuccess = function (event) {
-        const encodedSyncString = btoa(JSON.stringify(event.target.result.map(item => { return { name: item.name } })));
-        const encodedSyncStringSize = (new TextEncoder('utf-8').encode(encodedSyncString)).length;
-        const a = document.getElementById("sync-link-container");
-        a.innerText = `Sync to device (${encodedSyncStringSize}b) \u29C9`;
-        a.href = "#" + encodedSyncString;
-      };
-    }
-
     // Event Wiring
     const broadcastChannel = new BroadcastChannel('todo-broadcast');
     const receiveChannel = new BroadcastChannel('todo-broadcast');
@@ -240,7 +230,7 @@
       document.getElementById("todo-list").insertBefore(li, document.getElementById("todo-list").firstChild);
       document.getElementById("todo-name").value = "";
 
-      generateSyncUrlAndInjectToDom();
+      emitEvent("TodoListModified", event.detail.item);
     });
 
     document.addEventListener("PrepareItemRemoved", function (event) {
@@ -256,8 +246,18 @@
     document.addEventListener("ItemRemoved", function (event) {
       const el = document.getElementById("item-" + event.detail.item.id);
       el.remove();
-      generateSyncUrlAndInjectToDom();
+      emitEvent("TodoListModified", event.detail.item);
     });
+
+    document.addEventListener("TodoListModified", function(event) {
+      db.transaction(["item"], "readonly").objectStore("item").getAll().onsuccess = function (event) {
+        const encodedSyncString = btoa(JSON.stringify(event.target.result.map(item => { return { name: item.name } })));
+        const encodedSyncStringSize = (new TextEncoder('utf-8').encode(encodedSyncString)).length;
+        const a = document.getElementById("sync-link-container");
+        a.innerText = `Sync to device (${encodedSyncStringSize}b) \u29C9`;
+        a.href = "#" + encodedSyncString;
+      };
+    })
 
     // End Event Wiring
 

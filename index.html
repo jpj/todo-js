@@ -166,7 +166,7 @@
     document.getElementById("todo-list").addEventListener("click", function (event) {
       if (event.target.type === "checkbox") {
         if (event.target.checked) {
-          emitEvent("PrepareItemRemoved", {id: event.target.parentElement.todoId});
+          emitEvent("ItemMarkedForRemoval", {id: event.target.parentElement.todoId});
 
           timeoutIdByTodoIdMap.set(
                   event.target.parentElement.todoId,
@@ -177,7 +177,7 @@
                   }, 10 * 1000, db, event.target.parentElement.todoId)
           );
         } else {
-          emitEvent("CancelPrepareItemRemoved", {id: event.target.parentElement.todoId});
+          emitEvent("ItemRemovalCancelled", {id: event.target.parentElement.todoId});
 
           if (timeoutIdByTodoIdMap.has(event.target.parentElement.todoId)) {
             clearTimeout(timeoutIdByTodoIdMap.get(event.target.parentElement.todoId));
@@ -242,12 +242,12 @@
       emitEvent("TodoListModified", event.detail.item);
     });
 
-    document.addEventListener("PrepareItemRemoved", function (event) {
+    document.addEventListener("ItemMarkedForRemoval", function (event) {
       const el = document.getElementById("item-" + event.detail.item.id);
       el.classList.add("deleteCandidate");
       el.querySelector("input[type=checkbox]").checked = true;
     });
-    document.addEventListener("CancelPrepareItemRemoved", function (event) {
+    document.addEventListener("ItemRemovalCancelled", function (event) {
       const el = document.getElementById("item-" + event.detail.item.id);
       el.classList.remove("deleteCandidate");
       el.querySelector("input[type=checkbox]").checked = false;

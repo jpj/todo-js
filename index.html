@@ -261,7 +261,7 @@
     document.addEventListener("TodoListModified", function(event) {
       db.transaction(["item"], "readonly").objectStore("item").getAll().onsuccess = function (event) {
         const encodedSyncString = btoa(JSON.stringify(event.target.result.map(item => { return { name: item.name } })));
-        const encodedSyncStringSize = (new TextEncoder('utf-8').encode(encodedSyncString)).length;
+        const encodedSyncStringSize = (new TextEncoder().encode(encodedSyncString)).length;
         const a = document.getElementById("sync-link-container");
         a.innerText = `Sync to device (${encodedSyncStringSize}b) \u29C9`;
         a.href = "#" + encodedSyncString;
